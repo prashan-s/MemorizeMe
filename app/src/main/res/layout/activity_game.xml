@@ -14,6 +14,7 @@
 
 
     <LinearLayout
+        android:id="@+id/linearDashboard"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,6 +54,36 @@
             />
 
         </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearDashboardRow2"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearDashboard"
+
+        android:layout_marginStart="70dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginTop="20dp"
+        >
+
+        <TextView
+            android:id="@+id/highscore_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:gravity="end"
+            android:textColor="@android:color/white"
+            app:autoSizeTextType="uniform"
+            tools:text="High Score: 0" />
+
+
+
+    </LinearLayout>
 
             <GridLayout
                 android:layout_width="wrap_content"
@@ -101,22 +132,12 @@
 
             </GridLayout>
 
-            <GridLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp">
-
-
-            </GridLayout>
-
     <Button
         android:id="@+id/button_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorPrimary"
-        android:text="Start"
+        android:text="Next"
         android:textColor="@android:color/white"
 
         android:layout_marginBottom="100dp"

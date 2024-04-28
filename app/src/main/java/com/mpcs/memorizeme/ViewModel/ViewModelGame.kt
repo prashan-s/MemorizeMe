@@ -25,6 +25,9 @@ class ViewModelGame(val name: String,
     private val _count = MutableLiveData<Int>()
     val count: LiveData<Int> = _count
 
+    private val _highScore = MutableLiveData<Int>()
+    val highScore: LiveData<Int> = _highScore
+
     private val _reset = MutableLiveData<Boolean>()
     val reset: LiveData<Boolean> = _reset
 
@@ -48,6 +51,7 @@ class ViewModelGame(val name: String,
     fun initialize(sequenceLength: Int) {
         randomize(sequenceLength)
         _count.value = sequenceLength
+        setInitialData()
     }
 
     private fun randomize(sequenceLength: Int) {
@@ -88,6 +92,7 @@ class ViewModelGame(val name: String,
 
     private fun win() {
         _score.value = (_score.value ?: 0) + 1
+        updateScore(_score.value ?: 0)
         sequenceSize.value = (sequenceSize.value ?: START_SEQUENCE_SIZE) + 1
         randomize(sequenceSize.value ?: START_SEQUENCE_SIZE)
         _count.value = sequenceSize.value
@@ -128,6 +133,7 @@ class ViewModelGame(val name: String,
         currentUser?.let { user ->
             if (newScore > user.highScore) {
                 user.highScore = newScore
+                _highScore.value = newScore
                 viewModelScope.launch {
                     userDao.updateUser(user)
                     checkAndUpdateMaxHighScore(newScore)
@@ -140,6 +146,12 @@ class ViewModelGame(val name: String,
         val maxHighScore = sharedPreferencesHelper.highScore
         if (newScore > maxHighScore) {
             sharedPreferencesHelper.highScore = newScore
+        }
+    }
+
+    private fun setInitialData(){
+        currentUser?.let { user ->
+            _highScore.value = user.highScore ?: 0
         }
     }
 

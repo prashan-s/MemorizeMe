@@ -21,12 +21,14 @@ class ActivityGame : AppCompatActivity() {
     lateinit var colorViews: List<View>
     lateinit var scoreTextView:TextView
     lateinit var countTextView:TextView
+    lateinit var highScoreView:TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        val name = intent.getStringExtra("name") ?: "DefaultUser"
-
+//        val name = intent.extras?.getString("name") ?: "Default User"
+        val name = intent.extras?.get("NAME")?.toString() ?: "Default User"
+        println("User Name: " + name)
         val dao = AppDatabase.getDatabase(this).userDao()
         val sharedPref = SharedPreferencesHelper(this)
         viewModel = ViewModelGame(name,dao,sharedPref)
@@ -39,10 +41,13 @@ class ActivityGame : AppCompatActivity() {
 
         scoreTextView = findViewById<TextView>(R.id.score_text_view)
         countTextView = findViewById<TextView>(R.id.count_text_view)
+        highScoreView = findViewById<TextView>(R.id.highscore_text_view)
 
 
         viewModel.score.observe(this) { score -> scoreTextView.text = "Score: $score" }
         viewModel.count.observe(this) { count -> countTextView.text = "Count: $count" }
+        viewModel.highScore.observe(this) { highScore -> countTextView.text = "User High Score: $highScore" }
+
         viewModel.reset.observe(this) {
             lifecycleScope.launch {
                 coroutineContext.cancelChildren()
@@ -51,7 +56,7 @@ class ActivityGame : AppCompatActivity() {
             }
         }
 
-        viewModel.flash.observe(this){flashIndex ->
+        viewModel.flash.observe(this){ flashIndex ->
 
             lifecycleScope.launch {
                     coroutineContext.cancelChildren()

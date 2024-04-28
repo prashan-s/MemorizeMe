@@ -9,7 +9,6 @@ import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.mpcs.memorizeme.R
 
-
 class ActivityWelcome:  AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,7 +16,7 @@ class ActivityWelcome:  AppCompatActivity() {
 
         val txtName = findViewById<TextView>(R.id.editTextName)
         val btnStart = findViewById<Button>(R.id.button_next)
-        val highscore = findViewById<TextView>(R.id.button_score)
+        val btnhighscore = findViewById<TextView>(R.id.button_score)
 
         btnStart.setOnClickListener {
 
@@ -25,9 +24,16 @@ class ActivityWelcome:  AppCompatActivity() {
                 Toast.makeText(this,"Username cannot be empty",LENGTH_LONG).show()
             }else {
                 val i = Intent(this, ActivityGame::class.java)
-                i.putExtra("name", txtName.text)
+                i.putExtra("NAME", txtName.text)
                 startActivity(i)
             }
+        }
+
+        btnhighscore.setOnClickListener {
+
+            val i = Intent(this, ActivityLeaderboard::class.java)
+            i.putExtra("name", txtName.text)
+            startActivity(i)
         }
 
     }
