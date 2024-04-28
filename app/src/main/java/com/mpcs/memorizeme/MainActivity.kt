@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 coroutineContext.cancelChildren()
                 scoreTextView.flash()
+                countTextView.flash()
             }
         }
 
