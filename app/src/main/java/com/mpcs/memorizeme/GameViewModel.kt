@@ -1,40 +1,34 @@
 package com.mpcs.memorizeme
+import kotlin.random.Random
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.util.Timer
 import kotlin.concurrent.schedule
 
-class GameViewModel : ViewModel() {
-    private val _sequence = MutableLiveData<List<Int>>()
-    val sequence: LiveData<List<Int>> = _sequence
+class GameViewModel {
+    private val colorSequence = mutableListOf<Int>()
+    var userSequence = mutableListOf<Int>()
+    private val colors = listOf(0, 1, 2, 3) // Assuming colors are represented by integers.
 
-    private val _gameOver = MutableLiveData<Boolean>()
-    val gameOver: LiveData<Boolean> = _gameOver
-
-    private var currentSequence = mutableListOf<Int>()
-    private var playerIndex = 0
-
-    init {
-        generateSequence()
+    fun generateNextColor() {
+        colorSequence.add(colors[Random.nextInt(colors.size)])
     }
 
-    fun generateSequence() {
-        currentSequence.add((0..3).random())
-        _sequence.value = currentSequence.toList()
-        playerIndex = 0
+    fun getCurrentSequence(): List<Int> {
+        return colorSequence
     }
 
-    fun verifySequence(index: Int) {
-        if (currentSequence[playerIndex] == index) {
-            playerIndex++
-            if (playerIndex == currentSequence.size) {
-                Timer("Schedule", false).schedule(1000) {
-                    generateSequence()
-                }
-            }
-        } else {
-            _gameOver.value = true
-        }
+    fun addUserColor(color: Int) {
+        userSequence.add(color)
+    }
+
+    fun isUserSequenceCorrect(): Boolean {
+        return userSequence == colorSequence
+    }
+
+    fun resetGame() {
+        colorSequence.clear()
+        userSequence.clear()
     }
 }

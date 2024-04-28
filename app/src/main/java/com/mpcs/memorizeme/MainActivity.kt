@@ -7,65 +7,78 @@ import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import android.animation.ArgbEvaluator
+import android.view.View
+import com.mpcs.memorizeme.extensions.*
+import android.widget.TextView
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import org.w3c.dom.Text
+import kotlin.coroutines.coroutineContext
+import kotlin.properties.Delegates
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: GameViewModel
-    private lateinit var buttons: List<Button>
-
+    private lateinit var viewModel: MainViewModel
+    lateinit var colorViews: List<View>
+    lateinit var scoreTextView:TextView
+    lateinit var countTextView:TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val button1 = findViewById<Button>(R.id.button1);
-        val button2 = findViewById<Button>(R.id.button1);
-        val button3 = findViewById<Button>(R.id.button1);
-        val button4 = findViewById<Button>(R.id.button1);
-        buttons = listOf(button1,button2,button3,button4)
 
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        viewModel = MainViewModel()
 
-        // Observe the game state
-        viewModel.sequence.observe(this) { sequence ->
-            showSequence(sequence)
+        val buttonShow = findViewById<Button>(R.id.button_show)
+        val buttonBlue = findViewById<Button>(R.id.button_blue)
+        val buttonRed = findViewById<Button>(R.id.button_red)
+        val buttonGreen = findViewById<Button>(R.id.button_green)
+        val buttonYellow = findViewById<Button>(R.id.button_yellow)
+
+        scoreTextView = findViewById<TextView>(R.id.score_text_view)
+        countTextView = findViewById<TextView>(R.id.count_text_view)
+
+
+        viewModel.score.observe(this) { score -> scoreTextView.text = "Score: $score" }
+        viewModel.count.observe(this) { count -> countTextView.text = "Count: $count" }
+        viewModel.reset.observe(this) {
+            lifecycleScope.launch {
+                coroutineContext.cancelChildren()
+                colorViews.map { launch { it.flash() } }.joinAll()
+                colorViews.forEach { it.unhighlight() }
+            }
         }
-        viewModel.gameOver.observe(this) { isOver ->
-            if (isOver) finish() // or show game over dialog
+
+        viewModel.flash.observe(this){flashIndex ->
+
+            lifecycleScope.launch {
+                    coroutineContext.cancelChildren()
+                    colorViews[flashIndex].flash()
+            }
+        }
+
+        viewModel.win.observe(this){
+            lifecycleScope.launch {
+                coroutineContext.cancelChildren()
+                scoreTextView.flash()
+            }
         }
 
 
-        // Button listeners
-        button1.setOnClickListener { viewModel.verifySequence(0) }
-        button2.setOnClickListener { viewModel.verifySequence(1) }
-        button3.setOnClickListener { viewModel.verifySequence(2) }
-        button4.setOnClickListener { viewModel.verifySequence(3) }
-
-        viewModel.generateSequence()
-    }
-
-    private fun showSequence(sequence: List<Int>) {
-        val delay = 600L // Delay in milliseconds between flickers
-        sequence.forEachIndexed { index, buttonId ->
-            buttons[buttonId].postDelayed({
-                flickerButton(buttons[buttonId], 300) // Flicker each button for 300 ms
-            }, index * delay)
+        buttonShow.setOnClickListener { viewModel.showSequence() }
+        colorViews = listOf(buttonBlue, buttonRed, buttonGreen, buttonYellow)
+        colorViews.forEachIndexed { index, view ->
+            view.setOnClickListener { viewModel.onClickColor(index) }
         }
-    }
 
-    private fun flickerButton(button: Button, duration: Long) {
-        val colorFrom = ContextCompat.getColor(this, android.R.color.holo_blue_bright)
-        val colorTo = ContextCompat.getColor(this, android.R.color.holo_red_light)
-        val colorAnimation = ObjectAnimator.ofObject(
-            button,
-            "backgroundColor",
-            ArgbEvaluator(),
-            colorFrom,
-            colorTo,
-            colorFrom
-        )
-        colorAnimation.duration = duration
-        colorAnimation.repeatMode = ObjectAnimator.REVERSE
-        colorAnimation.repeatCount = 1  // Adjust this depending on how many times you want it to flicker
-        colorAnimation.start()
+        viewModel.initialize(colorViews.size)
     }
-
 }
