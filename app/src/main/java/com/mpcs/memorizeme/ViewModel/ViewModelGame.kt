@@ -37,12 +37,25 @@ class ViewModelGame(val name: String,
     private val _win = MutableLiveData<Boolean>()
     val win: LiveData<Boolean> = _win
 
+    private val _game_over = MutableLiveData<Boolean>()
+    val game_over: LiveData<Boolean> = _game_over
+
     private val sequenceSize = MutableLiveData<Int>().apply { value = START_SEQUENCE_SIZE }
     private var canPlay = false
 
     private var randomValues = listOf<Int>()
     private val responseValues = mutableListOf<Int>()
 
+    private var attempts:Int = 3
+
+    var highscore:Int = 0
+    val user_name:String
+        get() = (this.currentUser?.name ?: "Default User")
+
+    val user_high_score:String
+        get() = (this.currentUser?.highScore?.toString() ?: "0")
+
+    var user_score:String = "0"
 
     init {
         this.initializeUser(name)
@@ -101,11 +114,18 @@ class ViewModelGame(val name: String,
     }
 
     private fun fail() {
+
         responseValues.clear()
         canPlay = false
         _reset.value = true
         _count.value = sequenceSize.value
+        attempts--;
         canPlay = true
+        if (attempts == 0) {
+            user_score = score.toString()
+            attempts = 3
+            _game_over.value = true
+        }
     }
 
     companion object {
@@ -153,6 +173,7 @@ class ViewModelGame(val name: String,
         currentUser?.let { user ->
             _highScore.value = user.highScore ?: 0
         }
+        attempts = 3
     }
 
 }

@@ -32,7 +32,7 @@ class ActivityWelcome:  AppCompatActivity() {
         btnhighscore.setOnClickListener {
 
             val i = Intent(this, ActivityLeaderboard::class.java)
-            i.putExtra("name", txtName.text)
+            i.putExtra("NAME", txtName.text)
             startActivity(i)
         }
 

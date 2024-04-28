@@ -30,6 +30,12 @@
             android:name=".Activity.ActivityLeaderboard"
             android:exported="true">
         </activity>
+
+        <activity
+            android:name=".Activity.ActivityGameOver"
+            android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>

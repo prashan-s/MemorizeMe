@@ -19,7 +19,7 @@ interface UserDao {
 
     @Query("SELECT MAX(highScore) FROM users")
     suspend fun getMaxHighScore(): Int?
-    @Query("SELECT * FROM users")
+    @Query("SELECT * FROM users ORDER BY highScore DESC")
     fun getAllUsers(): List<User>?
 
 }

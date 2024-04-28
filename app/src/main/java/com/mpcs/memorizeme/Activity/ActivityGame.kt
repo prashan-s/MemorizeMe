@@ -14,6 +14,7 @@ import com.mpcs.memorizeme.ViewModel.ViewModelGame
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import android.content.Intent
 
 class ActivityGame : AppCompatActivity() {
     private lateinit var viewModel: ViewModelGame
@@ -22,6 +23,7 @@ class ActivityGame : AppCompatActivity() {
     lateinit var scoreTextView:TextView
     lateinit var countTextView:TextView
     lateinit var highScoreView:TextView
+    lateinit var txtplayerName:TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -42,8 +44,9 @@ class ActivityGame : AppCompatActivity() {
         scoreTextView = findViewById<TextView>(R.id.score_text_view)
         countTextView = findViewById<TextView>(R.id.count_text_view)
         highScoreView = findViewById<TextView>(R.id.highscore_text_view)
+        txtplayerName = findViewById<TextView>(R.id.txtplayerName)
 
-
+        txtplayerName.text = name
         viewModel.score.observe(this) { score -> scoreTextView.text = "Score: $score" }
         viewModel.count.observe(this) { count -> countTextView.text = "Count: $count" }
         viewModel.highScore.observe(this) { highScore -> countTextView.text = "User High Score: $highScore" }
@@ -73,6 +76,15 @@ class ActivityGame : AppCompatActivity() {
             }
         }
 
+        viewModel.game_over.observe(this) {
+            runOnUiThread {
+            val i = Intent(this, ActivityGameOver::class.java)
+            i.putExtra("NAME", viewModel.user_name)
+            i.putExtra("HIGH_SCORE", viewModel.user_high_score)
+            i.putExtra("SCORE", viewModel.score.value ?: 0)
+            startActivity(i)
+            }
+        }
 
         buttonShow.setOnClickListener { viewModel.showSequence() }
         colorViews = listOf(buttonBlue, buttonGreen, buttonRed, buttonYellow)

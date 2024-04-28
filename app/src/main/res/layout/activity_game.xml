@@ -29,6 +29,19 @@
         >
 
         <TextView
+            android:id="@+id/txtplayerName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="20dp"
+            android:gravity="start"
+            android:backgroundTint="@android:color/holo_blue_light"
+            tools:text="Unknown"
+            app:autoSizeTextType="uniform"
+            android:textColor="@android:color/white"
+            />
+
+        <TextView
             android:id="@+id/count_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -137,7 +150,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorPrimary"
-        android:text="Next"
+        android:text="Play"
         android:textColor="@android:color/white"
 
         android:layout_marginBottom="100dp"
