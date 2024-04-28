@@ -1,14 +1,24 @@
-package com.mpcs.memorizeme
+package com.mpcs.memorizeme.ViewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import com.mpcs.memorizeme.Database.AppDatabase
+import com.mpcs.memorizeme.Database.User
+import com.mpcs.memorizeme.Interface.UserDao
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class MainViewModel : ViewModel() {
+import com.mpcs.memorizeme.Utility.SharedPreferencesHelper
+
+class ViewModelGame(val name: String,
+                    private val userDao: UserDao,
+                    private val sharedPreferencesHelper: SharedPreferencesHelper) : ViewModel() {
+    private var currentUser: User? = null
+
     private val _score = MutableLiveData<Int>().apply { value = 0 }
     val score: LiveData<Int> = _score
 
@@ -30,13 +40,19 @@ class MainViewModel : ViewModel() {
     private var randomValues = listOf<Int>()
     private val responseValues = mutableListOf<Int>()
 
-    fun initialize(viewCount: Int) {
-        randomize(viewCount)
-        _count.value = sequenceSize.value ?: START_SEQUENCE_SIZE
+
+    init {
+        this.initializeUser(name)
     }
 
-    private fun randomize(viewCount: Int) {
-        randomValues = List(sequenceSize.value ?: START_SEQUENCE_SIZE) { Random.nextInt(0, viewCount) }
+    fun initialize(sequenceLength: Int) {
+        randomize(sequenceLength)
+        _count.value = sequenceLength
+    }
+
+    private fun randomize(sequenceLength: Int) {
+        randomValues = List(sequenceLength) { Random.nextInt(0, 4) }
+        println("Randomized Seq:" + randomValues);
     }
 
     fun showSequence() {
@@ -91,5 +107,41 @@ class MainViewModel : ViewModel() {
         private const val COOLDOWN_INTERVAL = 300L
         private const val START_SEQUENCE_SIZE = 2
     }
+
+
+
+
+    fun initializeUser(name: String) {
+
+        viewModelScope.launch {
+            val user = userDao.getUserByName(name)
+            if (user == null) {
+                val userId = userDao.insertUser(User(name = name, highScore = 0))
+                currentUser = User(id = userId, name = name, highScore = 0)
+            } else {
+                currentUser = user
+            }
+        }
+    }
+
+    fun updateScore(newScore: Int) {
+        currentUser?.let { user ->
+            if (newScore > user.highScore) {
+                user.highScore = newScore
+                viewModelScope.launch {
+                    userDao.updateUser(user)
+                    checkAndUpdateMaxHighScore(newScore)
+                }
+            }
+        }
+    }
+
+    private fun checkAndUpdateMaxHighScore(newScore: Int) {
+        val maxHighScore = sharedPreferencesHelper.highScore
+        if (newScore > maxHighScore) {
+            sharedPreferencesHelper.highScore = newScore
+        }
+    }
+
 }
 

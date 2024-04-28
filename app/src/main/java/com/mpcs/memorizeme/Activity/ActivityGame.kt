@@ -1,46 +1,40 @@
-package com.mpcs.memorizeme
+package com.mpcs.memorizeme.Activity
 
-import android.animation.ObjectAnimator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
-import android.animation.ArgbEvaluator
 import android.view.View
 import com.mpcs.memorizeme.extensions.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import com.mpcs.memorizeme.Database.AppDatabase
+import com.mpcs.memorizeme.R
+import com.mpcs.memorizeme.Utility.SharedPreferencesHelper
+import com.mpcs.memorizeme.ViewModel.ViewModelGame
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
-import kotlin.coroutines.coroutineContext
-import kotlin.properties.Delegates
-import kotlin.random.Random
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: MainViewModel
+class ActivityGame : AppCompatActivity() {
+    private lateinit var viewModel: ViewModelGame
+
     lateinit var colorViews: List<View>
     lateinit var scoreTextView:TextView
     lateinit var countTextView:TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_game)
 
+        val name = intent.getStringExtra("name") ?: "DefaultUser"
 
-        viewModel = MainViewModel()
+        val dao = AppDatabase.getDatabase(this).userDao()
+        val sharedPref = SharedPreferencesHelper(this)
+        viewModel = ViewModelGame(name,dao,sharedPref)
 
         val buttonShow = findViewById<Button>(R.id.button_show)
         val buttonBlue = findViewById<Button>(R.id.button_blue)
-        val buttonRed = findViewById<Button>(R.id.button_red)
         val buttonGreen = findViewById<Button>(R.id.button_green)
+        val buttonRed = findViewById<Button>(R.id.button_red)
         val buttonYellow = findViewById<Button>(R.id.button_yellow)
 
         scoreTextView = findViewById<TextView>(R.id.score_text_view)
@@ -61,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                     coroutineContext.cancelChildren()
+                    println("flashIndex: " + flashIndex)
                     colorViews[flashIndex].flash()
             }
         }
@@ -75,11 +70,11 @@ class MainActivity : AppCompatActivity() {
 
 
         buttonShow.setOnClickListener { viewModel.showSequence() }
-        colorViews = listOf(buttonBlue, buttonRed, buttonGreen, buttonYellow)
+        colorViews = listOf(buttonBlue, buttonGreen, buttonRed, buttonYellow)
         colorViews.forEachIndexed { index, view ->
             view.setOnClickListener { viewModel.onClickColor(index) }
         }
 
-        viewModel.initialize(colorViews.size)
+        viewModel.initialize(2)
     }
 }
