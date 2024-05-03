@@ -28,6 +28,9 @@ class ViewModelGame(val name: String,
     private val _highScore = MutableLiveData<Int>()
     val highScore: LiveData<Int> = _highScore
 
+    private val _lives = MutableLiveData<Int>()
+    val lives: LiveData<Int> = _lives
+
     private val _reset = MutableLiveData<Boolean>()
     val reset: LiveData<Boolean> = _reset
 
@@ -120,10 +123,12 @@ class ViewModelGame(val name: String,
         _reset.value = true
         _count.value = sequenceSize.value
         attempts--;
+        _lives.value = attempts
         canPlay = true
         if (attempts == 0) {
             user_score = score.toString()
             attempts = 3
+            _lives.value = attempts
             _game_over.value = true
         }
     }
@@ -174,6 +179,7 @@ class ViewModelGame(val name: String,
             _highScore.value = user.highScore ?: 0
         }
         attempts = 3
+        _lives.value = 3
     }
 
 }

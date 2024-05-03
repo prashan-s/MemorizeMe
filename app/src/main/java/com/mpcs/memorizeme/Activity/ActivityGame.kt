@@ -50,6 +50,7 @@ class ActivityGame : AppCompatActivity() {
         viewModel.score.observe(this) { score -> scoreTextView.text = "Score: $score" }
         viewModel.count.observe(this) { count -> countTextView.text = "Count: $count" }
         viewModel.highScore.observe(this) { highScore -> countTextView.text = "User High Score: $highScore" }
+        viewModel.lives.observe(this) { lives -> countTextView.text = "Lives: $lives" }
 
         viewModel.reset.observe(this) {
             lifecycleScope.launch {
